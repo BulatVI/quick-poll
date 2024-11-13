@@ -27,8 +27,7 @@ public class VoteController {
     }
 
     @PostMapping("/polls/{pollId}/votes")
-    public ResponseEntity<Vote> createVote(@PathVariable Long pollId, @RequestBody VoteDTO voteDTO) {
-        Vote vote = new Vote(voteDTO);
+    public ResponseEntity<Vote> createVote(@PathVariable Long pollId, @RequestBody Vote vote) {
         voteRepository.save(vote);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setLocation(ServletUriComponentsBuilder
