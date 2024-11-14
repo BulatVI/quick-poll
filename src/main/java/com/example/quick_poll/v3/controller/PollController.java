@@ -14,6 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -21,16 +25,14 @@ import com.example.quick_poll.exception.ResourceNotFoundException;
 import com.example.quick_poll.model.Poll;
 import com.example.quick_poll.repository.PollRepository;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-
 @RestController("pollControllerV3")
 @RequestMapping("/v3")
 public class PollController {
 
-    private final PollRepository pollRepository;
+    private PollRepository pollRepository;    
+
+    public PollController() {
+    }
 
     @Inject
     public PollController(PollRepository pollRepository) {

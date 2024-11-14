@@ -31,7 +31,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/v2")
 public class PollController {
 
-    private final PollRepository pollRepository;
+    private PollRepository pollRepository;
+    
+
+    public PollController() {
+    }
 
     @Inject
     public PollController(PollRepository pollRepository) {
