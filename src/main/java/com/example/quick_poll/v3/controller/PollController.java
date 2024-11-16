@@ -25,11 +25,14 @@ import com.example.quick_poll.exception.ResourceNotFoundException;
 import com.example.quick_poll.model.Poll;
 import com.example.quick_poll.repository.PollRepository;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController("pollControllerV3")
 @RequestMapping("/v3")
 public class PollController {
 
-    private PollRepository pollRepository;    
+    private PollRepository pollRepository;
 
     public PollController() {
     }
@@ -42,6 +45,9 @@ public class PollController {
     @GetMapping("/polls")
     public ResponseEntity<Iterable<Poll>> getAllPolls(Pageable pageable) {
         Iterable<Poll> allPols = pollRepository.findAll(pageable);
+        for (Poll p : allPols) {
+            updatePollResourceWithLinks(p);
+        }
         return new ResponseEntity<>(allPols, HttpStatus.OK);
     }
 
@@ -52,7 +58,7 @@ public class PollController {
         URI newPollUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(poll.getId())
+                .buildAndExpand(poll.getPollId())
                 .toUri();
         responceHeaders.setLocation(newPollUri);
         return new ResponseEntity<>(null, responceHeaders, HttpStatus.CREATED);
@@ -60,7 +66,12 @@ public class PollController {
 
     @GetMapping("/polls/{pollId}")
     public ResponseEntity<Poll> getPoll(@PathVariable Long pollId) {
-        return new ResponseEntity<>(verifyPoll(pollId), HttpStatus.OK);
+        Optional<Poll> p = pollRepository.findById(pollId);
+        if (!p.isPresent()) {
+            throw new ResourceNotFoundException("Pool was not found");
+        }
+        updatePollResourceWithLinks(p.get());
+        return new ResponseEntity<>(p.get(), HttpStatus.OK);
     }
 
     @PutMapping("/polls/{pollId}")
@@ -84,5 +95,12 @@ public class PollController {
             throw new ResourceNotFoundException("Poll with id " + pollId + " not found");
         }
         return poll.get();
+    }
+
+    private void updatePollResourceWithLinks(Poll poll) {
+        poll.add(linkTo(methodOn(PollController.class).getAllPolls(null)).slash(poll.getPollId()).withSelfRel());
+        poll.add(linkTo(methodOn(VoteController.class).getAllVotes(poll.getPollId())).withRel("votes"));
+        poll.add(linkTo(methodOn(ComputeResultController.class).computeResult(poll.getPollId()))
+                .withRel("compute-result"));
     }
 }

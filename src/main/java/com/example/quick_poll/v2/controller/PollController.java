@@ -55,7 +55,7 @@ public class PollController {
         URI newPollUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(poll.getId())
+                .buildAndExpand(poll.getPollId())
                 .toUri();
         responceHeaders.setLocation(newPollUri);
         return new ResponseEntity<>(null, responceHeaders, HttpStatus.CREATED);
